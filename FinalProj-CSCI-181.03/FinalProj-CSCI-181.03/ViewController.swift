@@ -25,16 +25,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         locationManager.requestWhenInUseAuthorization()
-//        viewModel.fetchWeather(latitude: 14.637670, longitude: 121.077367) { [weak self] in
-//            print("Weather Retrieved, Update UI.")
-//            DispatchQueue.main.async {
-//                self?.setUpUI()
-//            }
-//        }
+
         
         if CLLocationManager.locationServicesEnabled() {
                    locationManager.delegate = self
-                   locationManager.desiredAccuracy = kCLLocationAccuracyBest // You can change the locaiton accuary here.
+                   locationManager.desiredAccuracy = kCLLocationAccuracyBest
                    locationManager.startUpdatingLocation()
         }
         
@@ -58,9 +53,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     
-    // Show the popup to the user if we have been deined access
+
     func showLocationDisabledPopUp() {
-        let alertController = UIAlertController(title: "Background Location Access Disabled",message: "In order to deliver pizza we need your location", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Background Location Access Disabled",message: "In order to get the weather we need your location", preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         alertController.addAction(cancelAction)
         let openAction = UIAlertAction(title: "Open Settings", style: .default) { (action) in
