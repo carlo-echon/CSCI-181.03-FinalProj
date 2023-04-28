@@ -6,11 +6,12 @@
 //
 
 import UIKit
+import CoreLocation
 
 
-
-class ViewController: UIViewController {
+class ViewController: UIViewController, CLLocationManagerDelegate {
     
+    let locationManager = CLLocationManager()
     private let viewModel = WeatherViewModel()
 
     @IBOutlet weak var humidityLabel: UILabel!
@@ -23,13 +24,53 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        locationManager.requestWhenInUseAuthorization()
+//        viewModel.fetchWeather(latitude: 14.637670, longitude: 121.077367) { [weak self] in
+//            print("Weather Retrieved, Update UI.")
+//            DispatchQueue.main.async {
+//                self?.setUpUI()
+//            }
+//        }
         
-        viewModel.fetchWeather { [weak self] in
-            print("Weather Retrieved, Update UI.")
-            DispatchQueue.main.async {
-                self?.setUpUI()
+        if CLLocationManager.locationServicesEnabled() {
+                   locationManager.delegate = self
+                   locationManager.desiredAccuracy = kCLLocationAccuracyBest // You can change the locaiton accuary here.
+                   locationManager.startUpdatingLocation()
+        }
+        
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.first {
+            print(location.coordinate)
+            viewModel.fetchWeather(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude) { [weak self] in
+                print("Weather Retrieved, Update UI.")
+                DispatchQueue.main.async {
+                    self?.setUpUI()
+                }
             }
         }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        if(status == CLAuthorizationStatus.denied) {
+            showLocationDisabledPopUp()
+        }
+    }
+    
+    // Show the popup to the user if we have been deined access
+    func showLocationDisabledPopUp() {
+        let alertController = UIAlertController(title: "Background Location Access Disabled",message: "In order to deliver pizza we need your location", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        let openAction = UIAlertAction(title: "Open Settings", style: .default) { (action) in
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
+        alertController.addAction(openAction)
+        
+        self.present(alertController, animated: true, completion: nil)
     }
     
     private func setUpUI() {

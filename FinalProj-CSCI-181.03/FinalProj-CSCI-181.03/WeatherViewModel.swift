@@ -46,10 +46,12 @@ class WeatherViewModel {
 
 
     
-    func fetchWeather (for cityID: Int = 5128581, _ completion: @escaping(() -> Void)){
-        apiController.fetchWeather(for: cityID) { weather in
+    func fetchWeather(latitude: Double, longitude: Double, _ completion: @escaping(() -> Void)){
+        apiController.fetchWeather(latitude: latitude, longitude: longitude) { weather in
             self.weather = weather
             completion()
         }
     }
+
+
 }

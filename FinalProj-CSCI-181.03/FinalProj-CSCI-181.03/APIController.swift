@@ -13,9 +13,9 @@ struct APIController{
     private static let apiKey = "1152cff6cec805798d0e733b72df2bcd"
     
     enum Endpoints{
-        case cityID(path: String = "/data/2.5/weather", id: Int)
+        case location(path: String = "/data/2.5/weather", lat: Double, lon: Double)
         
-        var URL: URL? {
+        var url: URL? {
             var components = URLComponents()
             components.scheme = "https"
             components.host = baseURL
@@ -27,7 +27,7 @@ struct APIController{
         
         private var path: String{
             switch self{
-            case .cityID(let path, _):
+            case .location(let path, _, _):
                 return path
             }
         }
@@ -35,18 +35,21 @@ struct APIController{
         private var queryParameters: [URLQueryItem] {
             var queryParameters = [URLQueryItem]()
             switch self{
-            case .cityID(_, let id):
-                queryParameters.append(URLQueryItem(name: "id", value: String(id)))
+            case .location(_, let lat, let lon):
+                queryParameters.append(URLQueryItem(name: "lat", value: String(lat)))
+                queryParameters.append(URLQueryItem(name: "lon", value: String(lon)))
             }
             queryParameters.append(URLQueryItem(name: "appid", value: apiKey))
             
             return queryParameters
         }
     }
+
+
     
     //5128581 is New York city ID.
-    func fetchWeather(for cityID: Int = 5128581, _ completion: @escaping((Weather) -> Void)) {
-        if let url = Endpoints.cityID(id: cityID).URL {
+    func fetchWeather(latitude: Double, longitude: Double, _ completion: @escaping((Weather) -> Void)) {
+        if let url = Endpoints.location(lat: latitude, lon: longitude).url {
             URLSession.shared.dataTask(with: url) { (data, response, error) in
                 if let error = error{
                     print("Error in API Call", error)
@@ -63,4 +66,5 @@ struct APIController{
             }.resume()
         }
     }
+
 }
